@@ -1,98 +1,37 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const cors = require('cors');
+const cors = require('cors')
+const bcrypt = require('bcrypt-nodejs')
+const knex = require('knex');
+
+const register = require('./controllers/register');
+const signin = require('./controllers/signin');
+const image = require('./controllers/image');
+const profile = require('./controllers/profile')
+const home = require('./controllers/home')
+
+const db = knex({
+  client: 'pg',
+  connection: {
+    host : '127.0.0.1',
+    port : 5432,
+    user : 'postgres',
+    password : 'abasimmi1',
+    database : 'smart_brain'
+  }
+});
 
 app = express();
-
 
 app.use(bodyParser.json());
 app.use(cors());
 
-let id = 123
-
-const database = {
-	users: [
-		{
-			id: id++,
-			name: 'james',
-			email: 'james@gmail.com',
-			password: "cookies",
-			entries: 0,
-			joined: new Date()
-		},
-		{
-			id: id++,
-			name: 'mike',
-			email: 'mike@gmail.com',
-			password: "babies",
-			entries: 0,
-			joined: new Date()
-		}
-	]
-}
-
-app.get('/', (req, res) => {
-	res.json(database.users)
-})
-
-app.post('/signin', (req, res) => {
-	if (req.body.email === database.users[1].email && req.body.password === database.users[1].password) {
-		res.json(database.users[1])
-	} else {
-		res.status(400).json('user not found')
-	}
-})
-
-app.post('/register', (req, res) => {
-	const { name, email, password } = req.body
-	database.users.push({
-		id: id++,
-		name: name,
-		email: email,
-		entries: 0,
-		joined: new Date()
-	})
-	res.json(database.users[database.users.length-1])
-});
-
-app.get('/profile/:id', (req, res) => {
-	const { id } = req.params
-	let found = false;
-	database.users.forEach((user) => {
-		if (user.id === id ) {
-			found = true
-			res.json(user)
-		}
-	})
-	if (!found) {
-		res.json('cannot get the user')
-	}
-})
-
-app.put('/image', (req, res) => {
-	const { id } = req.body;
-	let found = false;
-	database.users.forEach(user => {
-		if (user.id === id ) {
-			found = true;
-			user.entries++
-			return res.json(user.entries)
-		}
-	})
-	if (!found) {
-		res.status(400).json('not found')
-	}
-
-})
-
-
-
+app.get('/', (req, res) => {home.handleHome(req, res, db)})
+app.post('/signin', signin.handleSignin(db, bcrypt))
+app.post('/register', (req, res) => {register.handleRegister(req, res, db, bcrypt)});
+app.get('/profile/:id', (req, res) => {profile.handleProfileGet(req, res, db)})
+app.put('/image', (req, res) => {image.handleImage(req, res, db)});
+app.post('/imageUrl', (req, res) => {image.handleApiCall(req, res)});
 app.listen(3500, () => {
 	console.log('server is running on port 3500');
 })
-
-// Routes that are needed
-// 1 === /signin route === post method
-// 2 === /register route === post method
-// 3 === /profile:id route === get method
-// 4 === /image route === put method
