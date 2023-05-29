@@ -3,7 +3,7 @@ const {ClarifaiStub, grpc} = require("clarifai-nodejs-grpc");
 const stub = ClarifaiStub.grpc();
 
 const metadata = new grpc.Metadata();
-metadata.set("authorization", "Key 1234e48aba5a414c944ff81d7471716c");
+metadata.set("authorization", "Key API_CLARIFAI");
 
 
 
@@ -15,7 +15,7 @@ metadata.set("authorization", "Key 1234e48aba5a414c944ff81d7471716c");
 
 // const MODEL_ID = 'face-detection';   
 // const returnClarifaiRequestOptions = (imageUrl) => {
-//   const PAT = '1234e48aba5a414c944ff81d7471716c';
+//   const PAT = 'API_CLARIFAI';
 
 //   const USER_ID = 'pee_jay1';       
 //   const APP_ID = 'test';
